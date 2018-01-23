@@ -11,14 +11,15 @@ class Motor:
         GPIO.setup(self.pins, GPIO.OUT)
 
     def rotate(self, times: int = 1) -> None:
-        """Complete a full step rotation X times"""
+        """Sets all pins to GPIO.HIGH once for x times"""
 
         for i in range(times):
-            for activePin in range(0, 4):
-                self.step(activePin)
+            for active_pin in range(0, 4):
+                self.step(active_pin)
                 sleep(self.delay)
 
     def step(self, pin_index: int) -> None:
+        """Sets all pins to GPIO.LOW except for pin_index"""
         for pin in range(0, 4):
             # print("Setting pin{} to {}".format(self.pins[pin], GPIO.HIGH if pin == pin_index else GPIO.LOW))
             GPIO.output(self.pins[pin], GPIO.HIGH if pin == pin_index else GPIO.LOW)
