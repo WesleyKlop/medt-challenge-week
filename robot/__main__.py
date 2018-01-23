@@ -1,4 +1,5 @@
 import sys
+from threading import Thread
 from time import sleep
 
 import RPi.GPIO as GPIO
@@ -9,22 +10,26 @@ from robot.MotorController import MotorController
 from robot.Pins import Pins
 from robot.Sensor import Sensor
 
-motor_controller = None
+motor_controller = None  # type: MotorController
 
 
 def on_sensor_change(channel: int) -> None:
+    global motor_controller
     if channel == Pins["SENSOR_LEFT"]:
+        motor_controller.on_left_sensor_change(GPIO.input(channel))
         print("Left sensor is now {}".format(GPIO.input(channel)))
     elif channel == Pins["SENSOR_MIDDLE"]:
         print("Middle sensor is now {}".format(GPIO.input(channel)))
     elif channel == Pins["SENSOR_RIGHT"]:
+        motor_controller.on_right_sensor_change(GPIO.input(channel))
         print("Right sensor is now {}".format(GPIO.input(channel)))
 
 
 def on_button_click(channel: int) -> None:
     global motor_controller
     print("Button clicked!")
-    motor_controller.drive_forward(1000)
+    drive_thread = Thread(target=motor_controller.drive, name="drive_thread")
+    drive_thread.start()
 
 
 def main() -> None:
