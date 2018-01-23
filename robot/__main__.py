@@ -10,7 +10,7 @@ from robot.Robot import Robot
 def main() -> None:
     GPIO.setmode(GPIO.BCM)
 
-    robot = Robot(MotorController.DRIVING_DIRECTION_LEFT)
+    robot = Robot(MotorController.DRIVING_DIRECTION_STRAIGHT)
     robot.start()
 
     # Keep the program running so we can listen for the button event

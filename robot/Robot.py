@@ -35,8 +35,9 @@ class Robot:
 
         self.button = Button(Pins["BUTTON"], self.on_button_click)
 
-    def on_sensor_change(self, direction: str) -> None:
+    def on_sensor_change(self, direction: str, tight: bool = False) -> None:
         self.motor_controller.driving_direction = direction
+        self.motor_controller.tight_corner = tight
 
     def on_button_click(self, _):
         """Start Sequence"""

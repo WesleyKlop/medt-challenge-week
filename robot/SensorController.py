@@ -9,7 +9,7 @@ class SensorController:
     SENSOR_WHITE = 1
     SENSOR_BLACK = 0
 
-    def __init__(self, left_sensor_pin: int, middle_sensor_pin: int, right_sensor_pin: int, callback: callable(str)):
+    def __init__(self, left_sensor_pin: int, middle_sensor_pin: int, right_sensor_pin: int, callback):
         self.left_sensor = Sensor(left_sensor_pin, self.on_sensor_change).listen()
         self.right_sensor = Sensor(right_sensor_pin, self.on_sensor_change).listen()
         self.middle_sensor = Sensor(middle_sensor_pin, self.on_sensor_change).listen()
@@ -36,7 +36,17 @@ class SensorController:
             self.callback(MotorController.DRIVING_DIRECTION_RIGHT)
         elif np.array_equal(sensor_state, [0, 0, 1]) or np.array_equal(sensor_state, [0, 1, 1]):
             self.callback(MotorController.DRIVING_DIRECTION_LEFT)
-        elif (np.array_equal(sensor_state, [1, 0, 1]) or np.array_equal(sensor_state, [1, 1, 1])) and not \
-                (np.array_equal(self.prev_state, [1, 1, 0]) or np.array_equal(self.prev_state, [0, 1, 1])):
+        elif np.array_equal(sensor_state, [1, 0, 1]):
             self.callback(MotorController.DRIVING_DIRECTION_STRAIGHT)
+        # elif np.array_equal(sensor_state, [0, 0, 0]):
+        #     self.callback(MotorController.DRIVING_DIRECTION_STOP)
+        elif np.array_equal(sensor_state, [1, 1, 1]):
+            if np.array_equal(self.prev_state, [1, 0, 0]) or np.array_equal(self.prev_state, [1, 1, 0]):
+                self.callback(MotorController.DRIVING_DIRECTION_RIGHT, True)
+            elif np.array_equal(self.prev_state, [0, 0, 1]) or np.array_equal(self.prev_state, [0, 1, 1]):
+                self.callback(MotorController.DRIVING_DIRECTION_LEFT, True)
+            elif np.array_equal(self.prev_state, [1, 0, 1]):
+                self.callback(MotorController.DRIVING_DIRECTION_STRAIGHT)
+            elif np.array_equal(self.prev_state, [0, 0, 0]):
+                self.callback(MotorController.DRIVING_DIRECTION_STOP)
         self.prev_state = sensor_state

@@ -8,11 +8,13 @@ class MotorController:
     DRIVING_DIRECTION_LEFT = "LEFT"
     DRIVING_DIRECTION_RIGHT = "RIGHT"
     DRIVING_DIRECTION_BACKWARDS = "BACKWARDS"
+    DRIVING_DIRECTION_STOP = "STOP"
 
     def __init__(self, left_motor: Motor, right_motor: Motor, default_direction: str):
         self.driving_direction = default_direction
         self.left_motor = left_motor
         self.right_motor = right_motor
+        self.tight_corner = False
 
     def drive_straight(self, times: int = 1) -> None:
         """Drive forward for {times} loops"""
@@ -26,7 +28,8 @@ class MotorController:
         """Drive right for {times} loops"""
         for i in range(times):
             for active_pin in range(0, 4):
-                self.right_motor.step_backwards(active_pin)
+                if self.tight_corner:
+                    self.right_motor.step_backwards(active_pin)
                 self.left_motor.step(active_pin)
                 sleep(Motor.delay)
 
@@ -35,7 +38,8 @@ class MotorController:
         for i in range(times):
             for active_pin in range(0, 4):
                 self.right_motor.step(active_pin)
-                self.left_motor.step_backwards(active_pin)
+                if self.tight_corner:
+                    self.left_motor.step_backwards(active_pin)
                 sleep(Motor.delay)
 
     def drive_backwards(self, times: int = 1) -> None:
@@ -50,10 +54,10 @@ class MotorController:
         """Keep following the black line"""
         while True:
             if self.driving_direction == MotorController.DRIVING_DIRECTION_STRAIGHT:
-                self.drive_straight(4)
+                self.drive_straight()
             elif self.driving_direction == MotorController.DRIVING_DIRECTION_LEFT:
-                self.drive_left(4)
+                self.drive_left()
             elif self.driving_direction == MotorController.DRIVING_DIRECTION_RIGHT:
-                self.drive_right(4)
+                self.drive_right()
             elif self.driving_direction == MotorController.DRIVING_DIRECTION_BACKWARDS:
-                self.drive_backwards(4)
+                self.drive_backwards()
