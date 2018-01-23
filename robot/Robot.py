@@ -9,7 +9,7 @@ from robot.SensorController import SensorController
 
 class Robot:
 
-    def __init__(self):
+    def __init__(self, default_direction: str = MotorController.DRIVING_DIRECTION_STRAIGHT):
         self.drive_thread = None  # type: Thread
 
         left_motor = Motor(
@@ -24,7 +24,8 @@ class Robot:
             Pins["MOTOR_RIGHT_PIN_4"])
         self.motor_controller = MotorController(
             left_motor,
-            right_motor)
+            right_motor,
+            default_direction)
 
         self.sensor_controller = SensorController(
             Pins["SENSOR_LEFT"],
@@ -32,7 +33,7 @@ class Robot:
             Pins["SENSOR_RIGHT"],
             self.on_sensor_change)
 
-        self.button = Button(Pins["BUTTON"], self.on_button_click).listen()
+        self.button = Button(Pins["BUTTON"], self.on_button_click)
 
     def on_sensor_change(self, direction: str) -> None:
         self.motor_controller.driving_direction = direction
@@ -42,3 +43,8 @@ class Robot:
         print("Button clicked!")
         self.drive_thread = Thread(target=self.motor_controller.drive, name="drive_thread")
         self.drive_thread.start()
+
+    def start(self, listen=True):
+        self.button.listen()
+        if not listen:
+            self.button.emulate_click()

@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 
 
 class Motor:
-    delay = 0.0025
+    delay = 0.005
 
     def __init__(self, pin1: int, pin2: int, pin3: int, pin4: int):
         self.pins = [pin1, pin2, pin3, pin4]
@@ -26,7 +26,7 @@ class Motor:
 
     def step_backwards(self, pin_index: int) -> None:
         """Sets all pins to GPIO.LOW except for pin_index"""
-        active_pin = 0
+        active_pin = None
         if pin_index == 0:
             active_pin = 3
         elif pin_index == 1:
@@ -36,6 +36,6 @@ class Motor:
         elif pin_index == 3:
             active_pin = 0
 
-        for pin in reversed(range(0, 4)):
+        for pin in range(0, 4):
             # print("Setting pin{} to {}".format(self.pins[pin], GPIO.HIGH if pin == pin_index else GPIO.LOW))
             GPIO.output(self.pins[pin], GPIO.HIGH if pin == active_pin else GPIO.LOW)

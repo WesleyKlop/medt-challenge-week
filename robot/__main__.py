@@ -3,16 +3,17 @@ from time import sleep
 
 import RPi.GPIO as GPIO
 
+from robot.MotorController import MotorController
 from robot.Robot import Robot
 
 
 def main() -> None:
-    """Main method"""
     GPIO.setmode(GPIO.BCM)
 
-    robot = Robot()
+    robot = Robot(MotorController.DRIVING_DIRECTION_LEFT)
+    robot.start()
 
-    # Keep the program running
+    # Keep the program running so we can listen for the button event
     while True:
         sleep(0.01)
 
