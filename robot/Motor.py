@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 
 
 class Motor:
-    delay = 0.01
+    delay = 0.0035
 
     def __init__(self, pin1: int, pin2: int, pin3: int, pin4: int):
         self.pins = [pin1, pin2, pin3, pin4]
