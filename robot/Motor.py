@@ -14,10 +14,11 @@ class Motor:
         """Complete a full step rotation X times"""
 
         for i in range(times):
-            for activePin in range(0, 3):
+            for activePin in range(0, 4):
                 self.step(activePin)
                 sleep(self.delay)
 
     def step(self, pin_index: int) -> None:
-        for pin in range(0, 3):
+        for pin in range(0, 4):
+            # print("Setting pin{} to {}".format(self.pins[pin], GPIO.HIGH if pin == pin_index else GPIO.LOW))
             GPIO.output(self.pins[pin], GPIO.HIGH if pin == pin_index else GPIO.LOW)
