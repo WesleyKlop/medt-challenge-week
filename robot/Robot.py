@@ -1,20 +1,44 @@
+from threading import Thread
+
 from robot.Button import Button
 from robot.Motor import Motor
+from robot.MotorController import MotorController
+from robot.Pins import Pins
+from robot.SensorController import SensorController
 
 
 class Robot:
-    def __init__(self, pin_dict):
-        self.left_motor = Motor(
-            pin_dict["MOTOR_LEFT_PIN_1"],
-            pin_dict["MOTOR_LEFT_PIN_2"],
-            pin_dict["MOTOR_LEFT_PIN_3"],
-            pin_dict["MOTOR_LEFT_PIN_4"])
-        self.right_motor = Motor(
-            pin_dict["MOTOR_RIGHT_PIN_1"],
-            pin_dict["MOTOR_RIGHT_PIN_2"],
-            pin_dict["MOTOR_RIGHT_PIN_3"],
-            pin_dict["MOTOR_RIGHT_PIN_4"])
-        self.button = Button(pin_dict["BUTTON"], self.on_button_click)
 
-    def on_button_click(self, channel):
+    def __init__(self):
+        self.drive_thread = None  # type: Thread
+
+        left_motor = Motor(
+            Pins["MOTOR_LEFT_PIN_1"],
+            Pins["MOTOR_LEFT_PIN_2"],
+            Pins["MOTOR_LEFT_PIN_3"],
+            Pins["MOTOR_LEFT_PIN_4"])
+        right_motor = Motor(
+            Pins["MOTOR_RIGHT_PIN_1"],
+            Pins["MOTOR_RIGHT_PIN_2"],
+            Pins["MOTOR_RIGHT_PIN_3"],
+            Pins["MOTOR_RIGHT_PIN_4"])
+        self.motor_controller = MotorController(
+            left_motor,
+            right_motor)
+
+        self.sensor_controller = SensorController(
+            Pins["SENSOR_LEFT"],
+            Pins["SENSOR_MIDDLE"],
+            Pins["SENSOR_RIGHT"],
+            self.on_sensor_change)
+
+        self.button = Button(Pins["BUTTON"], self.on_button_click).listen()
+
+    def on_sensor_change(self, direction: str) -> None:
+        self.motor_controller.driving_direction = direction
+
+    def on_button_click(self, _):
         """Start Sequence"""
+        print("Button clicked!")
+        self.drive_thread = Thread(target=self.motor_controller.drive, name="drive_thread")
+        self.drive_thread.start()
