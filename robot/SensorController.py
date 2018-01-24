@@ -1,3 +1,5 @@
+from time import time
+
 import numpy as np
 
 from robot.MotorController import MotorController
@@ -7,6 +9,7 @@ from robot.Sensor import Sensor
 class SensorController:
     SENSOR_WHITE = 1
     SENSOR_BLACK = 0
+    LOCK_TIME = 800
 
     def __init__(self, left_sensor_pin: int, middle_sensor_pin: int, right_sensor_pin: int, change_driving_direction):
         self.left_sensor = Sensor(left_sensor_pin, self.on_sensor_change).listen()
@@ -15,6 +18,9 @@ class SensorController:
         self.callback = change_driving_direction
         self.prev_state = [1, 0, 1]
         self.prev_direction = MotorController.DRIVING_DIRECTION_STRAIGHT
+        self.direction_locked = 0
+        self.found_intersection = False
+        self.destination = None  # type: str
 
     def get_sensor_state(self):
         return [
@@ -24,32 +30,39 @@ class SensorController:
         ]
 
     def change_driving_direction(self, direction: str, tight: bool = False):
-        self.prev_direction = direction
-        self.callback(direction, tight)
+        if int(time() * 1000) - self.direction_locked > SensorController.LOCK_TIME:
+            self.prev_direction = direction
+            self.callback(direction, tight)
+            self.direction_locked = 0
+
+    def lock_direction(self, lock_time: int = 800):
+        self.direction_locked = int(time() * 1000)
+        SensorController.LOCK_TIME = lock_time
 
     def on_sensor_change(self, _):
         """Check all available combinations to see what direction we need to go"""
         sensor_state = self.get_sensor_state()
         print(sensor_state)
         if np.array_equal(sensor_state, [1, 0, 0]) or np.array_equal(sensor_state, [1, 1, 0]):
-            if np.array_equal(self.prev_state, [0, 0, 1]) or np.array_equal(self.prev_state, [0, 1, 1]):
-                self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
-            else:
-                self.change_driving_direction(MotorController.DRIVING_DIRECTION_RIGHT)
+            self.change_driving_direction(MotorController.DRIVING_DIRECTION_RIGHT)
         elif np.array_equal(sensor_state, [0, 0, 1]) or np.array_equal(sensor_state, [0, 1, 1]):
-            if np.array_equal(sensor_state, [1, 0, 0]) or np.array_equal(sensor_state, [1, 1, 0]):
-                self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
-            else:
-                self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT)
+            self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT)
         elif np.array_equal(sensor_state, [1, 0, 1]):
-            # if np.array_equal(self.prev_state, [0, 0, 0]):
-            #     print("Encountered a crossing, driving backwards as a check")
-            #     self.change_driving_direction(MotorController.DRIVING_DIRECTION_BACKWARDS)
-            # else:
-            self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
+            if np.array_equal(self.prev_state, [0, 0, 0]):
+                print("Encountered an intersection, driving backwards as a check")
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_BACKWARDS)
+            else:
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
         elif np.array_equal(sensor_state, [0, 0, 0]):
             # When we encounter all black while we we're driving backwards we found an intersection.
-            self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT, True)
+            print("I guess we found an intersection")
+            if self.found_intersection:
+                print("STOP!")
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_STOP)
+            else:
+                self.change_driving_direction(self.destination, True)
+                self.found_intersection = True
+                self.lock_direction()
         elif np.array_equal(sensor_state, [1, 1, 1]):
             # When the robot encounters only white surface check if the previous state was cornering,
             # if that is true than take the corner tighter defined by the "True" argument

@@ -10,7 +10,7 @@ def main() -> None:
     GPIO.setmode(GPIO.BCM)
 
     robot = Robot()
-    robot.start(auto_start=True)
+    robot.start(auto_start=False)
 
     # Keep the program running so we can listen for the button event
     while True:
