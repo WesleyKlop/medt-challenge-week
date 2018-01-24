@@ -13,6 +13,7 @@ class Robot:
 
     def __init__(self):
         self.drive_thread = None  # type: Thread
+        self.flashing_lights_thread = None  # type: Thread
 
         left_motor = Motor(
             Pins["MOTOR_LEFT_PIN_1"],
@@ -47,12 +48,12 @@ class Robot:
     def on_button_click(self, _):
         """Start Sequence"""
         print("Button clicked!")
-        self.drive_thread = Thread(target=self.motor_controller.drive, name="drive_thread")
+        self.drive_thread = Thread(target=self.motor_controller.drive)
         self.drive_thread.start()
-        self.flashing_lights.start_alternate_blink()
+        self.flashing_lights_thread = Thread(target=self.flashing_lights.start_alternate_blink)
+        self.flashing_lights_thread.start()
 
     def start(self, auto_start=False):
         self.button.listen()
         if auto_start:
             self.button.emulate_click()
-        self.flashing_lights.both_on()

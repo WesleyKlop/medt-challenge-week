@@ -11,6 +11,10 @@ class LEDOrchestrator:
         self.led_right = LED(led_right_pin)
         self.blink_on = False
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.led_left.off()
+        self.led_right.off()
+
     def start_alternate_blink(self):
         self.blink_on = True
         while self.blink_on:

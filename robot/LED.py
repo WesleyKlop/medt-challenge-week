@@ -10,6 +10,9 @@ class LED:
         self.is_on = False
         self.blink_interval = blink_interval
 
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.off()
+
     def on(self):
         self.is_on = True
         GPIO.output(self.pin, GPIO.HIGH)

@@ -9,6 +9,7 @@ class MotorController:
     DRIVING_DIRECTION_RIGHT = "RIGHT"
     DRIVING_DIRECTION_BACKWARDS = "BACKWARDS"
     DRIVING_DIRECTION_STOP = "STOP"
+    CORNERING_POWER = 15
 
     def __init__(self, left_motor: Motor, right_motor: Motor):
         self.driving_direction = MotorController.DRIVING_DIRECTION_STRAIGHT
@@ -56,8 +57,8 @@ class MotorController:
             if self.driving_direction == MotorController.DRIVING_DIRECTION_STRAIGHT:
                 self.drive_straight()
             elif self.driving_direction == MotorController.DRIVING_DIRECTION_LEFT:
-                self.drive_left()
+                self.drive_left(MotorController.CORNERING_POWER)
             elif self.driving_direction == MotorController.DRIVING_DIRECTION_RIGHT:
-                self.drive_right()
+                self.drive_right(MotorController.CORNERING_POWER)
             elif self.driving_direction == MotorController.DRIVING_DIRECTION_BACKWARDS:
                 self.drive_backwards()

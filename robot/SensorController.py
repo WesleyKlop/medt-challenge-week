@@ -32,17 +32,24 @@ class SensorController:
         sensor_state = self.get_sensor_state()
         print(sensor_state)
         if np.array_equal(sensor_state, [1, 0, 0]) or np.array_equal(sensor_state, [1, 1, 0]):
-            self.change_driving_direction(MotorController.DRIVING_DIRECTION_RIGHT)
-        elif np.array_equal(sensor_state, [0, 0, 1]) or np.array_equal(sensor_state, [0, 1, 1]):
-            self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT)
-        elif np.array_equal(sensor_state, [1, 0, 1]):
-            if np.array_equal(self.prev_state, [0, 0, 0]):
-                self.change_driving_direction(MotorController.DRIVING_DIRECTION_BACKWARDS)
-            else:
+            if np.array_equal(self.prev_state, [0, 0, 1]) or np.array_equal(self.prev_state, [0, 1, 1]):
                 self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
+            else:
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_RIGHT)
+        elif np.array_equal(sensor_state, [0, 0, 1]) or np.array_equal(sensor_state, [0, 1, 1]):
+            if np.array_equal(sensor_state, [1, 0, 0]) or np.array_equal(sensor_state, [1, 1, 0]):
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
+            else:
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT)
+        elif np.array_equal(sensor_state, [1, 0, 1]):
+            # if np.array_equal(self.prev_state, [0, 0, 0]):
+            #     print("Encountered a crossing, driving backwards as a check")
+            #     self.change_driving_direction(MotorController.DRIVING_DIRECTION_BACKWARDS)
+            # else:
+            self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
         elif np.array_equal(sensor_state, [0, 0, 0]):
-            # All black... we should probably check for a crossing?
-            self.change_driving_direction(MotorController.DRIVING_DIRECTION_STOP)
+            # When we encounter all black while we we're driving backwards we found an intersection.
+            self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT, True)
         elif np.array_equal(sensor_state, [1, 1, 1]):
             # When the robot encounters only white surface check if the previous state was cornering,
             # if that is true than take the corner tighter defined by the "True" argument
@@ -51,6 +58,7 @@ class SensorController:
             elif np.array_equal(self.prev_state, [0, 0, 1]) or np.array_equal(self.prev_state, [0, 1, 1]):
                 self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT, True)
             elif np.array_equal(self.prev_state, [1, 0, 1]):
+                # This is probably a dashed line, just keep driving (probably doesn't work for level 6)
                 self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
             elif np.array_equal(self.prev_state, [0, 0, 0]):
                 # We reached an ending
