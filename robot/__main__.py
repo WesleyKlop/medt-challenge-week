@@ -6,10 +6,16 @@ import RPi.GPIO as GPIO
 from robot.Robot import Robot
 
 
+def on_destination_reached():
+    print("Destination reached!")
+    GPIO.cleanup()
+    sys.exit(0)
+
+
 def main() -> None:
     GPIO.setmode(GPIO.BCM)
 
-    robot = Robot()
+    robot = Robot(on_destination_reached)
     robot.start(auto_start=False)
 
     # Keep the program running so we can listen for the button event

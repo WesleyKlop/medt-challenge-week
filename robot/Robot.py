@@ -11,7 +11,7 @@ from robot.SensorController import SensorController
 
 class Robot:
 
-    def __init__(self):
+    def __init__(self, on_destination_reached: callable):
         self.drive_thread = None  # type: Thread
         self.flashing_lights_thread = None  # type: Thread
 
@@ -33,7 +33,8 @@ class Robot:
             Pins["SENSOR_LEFT"],
             Pins["SENSOR_MIDDLE"],
             Pins["SENSOR_RIGHT"],
-            self.on_sensor_change)
+            self.on_sensor_change,
+            on_destination_reached)
 
         self.flashing_lights = LEDOrchestrator(Pins["LED_TOP_LEFT"], Pins["LED_TOP_RIGHT"])
         self.front_back_lights = LED(Pins["LED_FRONT_BACK"])

@@ -11,7 +11,8 @@ class SensorController:
     SENSOR_BLACK = 0
     LOCK_TIME = 800
 
-    def __init__(self, left_sensor_pin: int, middle_sensor_pin: int, right_sensor_pin: int, change_driving_direction):
+    def __init__(self, left_sensor_pin: int, middle_sensor_pin: int, right_sensor_pin: int, change_driving_direction,
+                 on_destination_reached: callable):
         self.left_sensor = Sensor(left_sensor_pin, self.on_sensor_change).listen()
         self.right_sensor = Sensor(right_sensor_pin, self.on_sensor_change).listen()
         self.middle_sensor = Sensor(middle_sensor_pin, self.on_sensor_change).listen()
@@ -21,6 +22,7 @@ class SensorController:
         self.direction_locked = 0
         self.found_intersection = False
         self.destination = None  # type: str
+        self.on_destination_reached = on_destination_reached
 
     def get_sensor_state(self):
         return [
@@ -59,10 +61,12 @@ class SensorController:
             if self.found_intersection:
                 print("STOP!")
                 self.change_driving_direction(MotorController.DRIVING_DIRECTION_STOP)
+                self.on_destination_reached()
             else:
+                print("Locking direction to {}".format(self.destination))
                 self.change_driving_direction(self.destination, True)
                 self.found_intersection = True
-                self.lock_direction()
+                self.lock_direction(1000)
         elif np.array_equal(sensor_state, [1, 1, 1]):
             # When the robot encounters only white surface check if the previous state was cornering,
             # if that is true than take the corner tighter defined by the "True" argument
