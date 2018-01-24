@@ -18,3 +18,6 @@ class Sensor:
         """Start listening for changes in a sensor"""
         GPIO.add_event_detect(self.pin, GPIO.BOTH, callback=self.callback, bouncetime=200)
         return self
+
+    def get_state(self):
+        return GPIO.input(self.pin)

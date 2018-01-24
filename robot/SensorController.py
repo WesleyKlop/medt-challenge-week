@@ -1,4 +1,3 @@
-import RPi.GPIO as GPIO
 import numpy as np
 
 from robot.MotorController import MotorController
@@ -9,44 +8,51 @@ class SensorController:
     SENSOR_WHITE = 1
     SENSOR_BLACK = 0
 
-    def __init__(self, left_sensor_pin: int, middle_sensor_pin: int, right_sensor_pin: int, callback):
+    def __init__(self, left_sensor_pin: int, middle_sensor_pin: int, right_sensor_pin: int, change_driving_direction):
         self.left_sensor = Sensor(left_sensor_pin, self.on_sensor_change).listen()
         self.right_sensor = Sensor(right_sensor_pin, self.on_sensor_change).listen()
         self.middle_sensor = Sensor(middle_sensor_pin, self.on_sensor_change).listen()
-        self.callback = callback
+        self.callback = change_driving_direction
         self.prev_state = [1, 0, 1]
-        self.pins = {
-            "left": left_sensor_pin,
-            "middle": middle_sensor_pin,
-            "right": right_sensor_pin,
-        }
+        self.prev_direction = MotorController.DRIVING_DIRECTION_STRAIGHT
 
     def get_sensor_state(self):
         return [
-            GPIO.input(self.pins["left"]),
-            GPIO.input(self.pins["middle"]),
-            GPIO.input(self.pins["right"])
+            self.left_sensor.get_state(),
+            self.middle_sensor.get_state(),
+            self.right_sensor.get_state()
         ]
 
-    def on_sensor_change(self, channel):
+    def change_driving_direction(self, direction: str, tight: bool = False):
+        self.prev_direction = direction
+        self.callback(direction, tight)
+
+    def on_sensor_change(self, _):
         """Check all available combinations to see what direction we need to go"""
         sensor_state = self.get_sensor_state()
         print(sensor_state)
         if np.array_equal(sensor_state, [1, 0, 0]) or np.array_equal(sensor_state, [1, 1, 0]):
-            self.callback(MotorController.DRIVING_DIRECTION_RIGHT)
+            self.change_driving_direction(MotorController.DRIVING_DIRECTION_RIGHT)
         elif np.array_equal(sensor_state, [0, 0, 1]) or np.array_equal(sensor_state, [0, 1, 1]):
-            self.callback(MotorController.DRIVING_DIRECTION_LEFT)
+            self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT)
         elif np.array_equal(sensor_state, [1, 0, 1]):
-            self.callback(MotorController.DRIVING_DIRECTION_STRAIGHT)
-        # elif np.array_equal(sensor_state, [0, 0, 0]):
-        #     self.callback(MotorController.DRIVING_DIRECTION_STOP)
+            if np.array_equal(self.prev_state, [0, 0, 0]):
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_BACKWARDS)
+            else:
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
+        elif np.array_equal(sensor_state, [0, 0, 0]):
+            # All black... we should probably check for a crossing?
+            self.change_driving_direction(MotorController.DRIVING_DIRECTION_STOP)
         elif np.array_equal(sensor_state, [1, 1, 1]):
+            # When the robot encounters only white surface check if the previous state was cornering,
+            # if that is true than take the corner tighter defined by the "True" argument
             if np.array_equal(self.prev_state, [1, 0, 0]) or np.array_equal(self.prev_state, [1, 1, 0]):
-                self.callback(MotorController.DRIVING_DIRECTION_RIGHT, True)
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_RIGHT, True)
             elif np.array_equal(self.prev_state, [0, 0, 1]) or np.array_equal(self.prev_state, [0, 1, 1]):
-                self.callback(MotorController.DRIVING_DIRECTION_LEFT, True)
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT, True)
             elif np.array_equal(self.prev_state, [1, 0, 1]):
-                self.callback(MotorController.DRIVING_DIRECTION_STRAIGHT)
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
             elif np.array_equal(self.prev_state, [0, 0, 0]):
-                self.callback(MotorController.DRIVING_DIRECTION_STOP)
+                # We reached an ending
+                self.change_driving_direction(MotorController.DRIVING_DIRECTION_STOP)
         self.prev_state = sensor_state

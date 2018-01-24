@@ -10,8 +10,8 @@ class MotorController:
     DRIVING_DIRECTION_BACKWARDS = "BACKWARDS"
     DRIVING_DIRECTION_STOP = "STOP"
 
-    def __init__(self, left_motor: Motor, right_motor: Motor, default_direction: str):
-        self.driving_direction = default_direction
+    def __init__(self, left_motor: Motor, right_motor: Motor):
+        self.driving_direction = MotorController.DRIVING_DIRECTION_STRAIGHT
         self.left_motor = left_motor
         self.right_motor = right_motor
         self.tight_corner = False

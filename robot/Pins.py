@@ -15,4 +15,7 @@ Pins = {
     "SENSOR_MIDDLE": 15,
     "SENSOR_RIGHT": 18,
     "BUTTON": 26,
+    "LED_TOP_RIGHT": 5,
+    "LED_TOP_LEFT": 13,
+    "LED_FRONT_BACK": 6
 }
