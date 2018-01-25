@@ -1,4 +1,5 @@
 (() => {
+    const MAX_LOG_LENGTH = 40
     const locations = {
         STRAIGHT: 'Apple Store',
         LEFT: 'Starbucks',
@@ -12,6 +13,13 @@
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({destination}),
     })
+
+    const findSelectedLocation = location => Array.from(document.querySelectorAll('.destination-list__item')).find(el => el.innerText === location)
+
+    const setDestinationActive = location => {
+        const el = findSelectedLocation(location)
+        el.classList.add('active')
+    }
 
     const formatDirection = direction => {
         switch (direction) {
@@ -34,7 +42,7 @@
         // Return destination name
         if (row.startsWith('DESTINATION')) {
             const destination = locations[row.substring(row.indexOf(' ') + 1)]
-
+            setDestinationActive(destination)
             return `Driving to ${destination}`
         } else if (row.startsWith('INTERSECTION '))
             return formatDirection(row.substring(row.indexOf(' ') + 1))
@@ -48,6 +56,7 @@
             .then(text => text.split('\n')
                 .map(mapLogRow)
                 .filter(row => row !== '')
+                .filter((_, i, arr) => arr.length > MAX_LOG_LENGTH ? i > arr.length - MAX_LOG_LENGTH : true)
                 .join('\n'))
             .then(text => consoleEl.innerHTML = text)
     }
