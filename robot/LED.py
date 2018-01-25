@@ -29,3 +29,6 @@ class LED:
         while True:
             self.toggle()
             sleep(self.blink_interval)
+
+    def reset(self):
+        self.off()

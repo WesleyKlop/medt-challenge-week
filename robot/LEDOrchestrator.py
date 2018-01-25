@@ -12,8 +12,7 @@ class LEDOrchestrator:
         self.blink_on = False
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.led_left.off()
-        self.led_right.off()
+        self.both_off()
 
     def start_alternate_blink(self):
         self.blink_on = True
@@ -28,6 +27,7 @@ class LEDOrchestrator:
 
     def stop_blink(self):
         self.blink_on = False
+        self.both_off()
 
     def both_on(self):
         self.led_left.on()
@@ -36,3 +36,6 @@ class LEDOrchestrator:
     def both_off(self):
         self.led_right.off()
         self.led_left.off()
+
+    def reset(self):
+        self.stop_blink()

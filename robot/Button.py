@@ -27,3 +27,7 @@ class Button:
         sleep(5)
         self.callback(self.click_count)
         return self
+
+    def reset(self):
+        GPIO.remove_event_detect(self.pin)
+        self.click_count = 0

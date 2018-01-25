@@ -3,6 +3,7 @@ from threading import Thread
 from robot.Button import Button
 from robot.LED import LED
 from robot.LEDOrchestrator import LEDOrchestrator
+from robot.Log import log
 from robot.Motor import Motor
 from robot.MotorController import MotorController
 from robot.Pins import Pins
@@ -42,18 +43,24 @@ class Robot:
 
         self.button = Button(Pins["BUTTON"], self.on_button_click)
 
+    def reset(self):
+        self.sensor_controller.reset()
+        self.motor_controller.reset()
+        self.button.reset()
+        self.flashing_lights.reset()
+        self.front_back_lights.reset()
+
     def on_sensor_change(self, direction: str, tight: bool = False) -> None:
         self.motor_controller.driving_direction = direction
         self.motor_controller.tight_corner = tight
 
     def on_button_click(self, click_count: int):
         """Start Sequence"""
-        print("Button clicked! {} times".format(click_count))
         self.set_destination(click_count)
-        self.drive_thread = Thread(target=self.motor_controller.drive)
-        self.drive_thread.start()
-        self.flashing_lights_thread = Thread(target=self.flashing_lights.start_alternate_blink)
-        self.flashing_lights_thread.start()
+        self.start_driving()
+
+    def set_destination_string(self, destination: str):
+        self.sensor_controller.destination = destination
 
     def set_destination(self, click_count: int):
         if click_count == 1:
@@ -67,3 +74,10 @@ class Robot:
         self.button.listen()
         if auto_start:
             self.button.emulate_click()
+
+    def start_driving(self):
+        log.write("DESTINATION " + self.sensor_controller.destination)
+        self.drive_thread = Thread(target=self.motor_controller.drive)
+        self.drive_thread.start()
+        self.flashing_lights_thread = Thread(target=self.flashing_lights.start_alternate_blink)
+        self.flashing_lights_thread.start()

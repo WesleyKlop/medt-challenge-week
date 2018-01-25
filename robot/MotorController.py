@@ -17,6 +17,9 @@ class MotorController:
         self.right_motor = right_motor
         self.tight_corner = False
 
+    def reset(self):
+        self.driving_direction = MotorController.DRIVING_DIRECTION_STRAIGHT
+
     def drive_straight(self, times: int = 1) -> None:
         """Drive forward for {times} loops"""
         for i in range(times):

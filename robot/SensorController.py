@@ -2,6 +2,7 @@ from time import time
 
 import numpy as np
 
+from robot.Log import log
 from robot.MotorController import MotorController
 from robot.Sensor import Sensor
 
@@ -24,6 +25,16 @@ class SensorController:
         self.destination = None  # type: str
         self.on_destination_reached = on_destination_reached
 
+    def reset(self):
+        self.left_sensor.reset()
+        self.middle_sensor.reset()
+        self.right_sensor.reset()
+        self.prev_state = [1, 0, 1]
+        self.destination = None
+        self.found_intersection = False
+        self.direction_locked = 0
+        self.prev_direction = MotorController.DRIVING_DIRECTION_STRAIGHT
+
     def get_sensor_state(self):
         return [
             self.left_sensor.get_state(),
@@ -34,6 +45,7 @@ class SensorController:
     def change_driving_direction(self, direction: str, tight: bool = False):
         if int(time() * 1000) - self.direction_locked > SensorController.LOCK_TIME:
             self.prev_direction = direction
+            log.write(direction)
             self.callback(direction, tight)
             self.direction_locked = 0
 
@@ -45,7 +57,6 @@ class SensorController:
     def on_sensor_change(self, _):
         """Check all available combinations to see what direction we need to go"""
         sensor_state = self.get_sensor_state()
-        print(sensor_state)
         if np.array_equal(sensor_state, [1, 1, 0]):
             self.change_driving_direction(MotorController.DRIVING_DIRECTION_RIGHT)
         elif np.array_equal(sensor_state, [1, 0, 0]):
@@ -62,13 +73,13 @@ class SensorController:
                 self.change_driving_direction(MotorController.DRIVING_DIRECTION_STRAIGHT)
         elif np.array_equal(sensor_state, [0, 0, 0]):
             # When we encounter all black while we we're driving backwards we found an intersection.
-            print("I guess we found an intersection")
+            log.write("INTERSECTION")
             if self.found_intersection:
-                print("STOP!")
+                log.write("FINISHED")
                 self.change_driving_direction(MotorController.DRIVING_DIRECTION_STOP)
                 self.on_destination_reached()
             else:
-                print("Locking direction to {}".format(self.destination))
+                log.write("INTERSECTION {}".format(self.destination))
                 self.change_driving_direction(self.destination, True)
                 self.found_intersection = True
                 self.lock_direction(1000)

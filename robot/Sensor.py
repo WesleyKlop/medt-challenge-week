@@ -21,3 +21,6 @@ class Sensor:
 
     def get_state(self):
         return GPIO.input(self.pin)
+
+    def reset(self):
+        GPIO.remove_event_detect(self.pin)
