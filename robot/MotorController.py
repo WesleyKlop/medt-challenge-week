@@ -46,9 +46,9 @@ class MotorController:
     def drive_backwards(self, times: int = 1) -> None:
         """Drive forward for {times} loops"""
         for i in range(times):
-            for active_pin in reversed(range(0, 4)):
-                self.left_motor.step(active_pin)
-                self.right_motor.step(active_pin)
+            for active_pin in range(0, 4):
+                self.left_motor.step_backwards(active_pin)
+                self.right_motor.step_backwards(active_pin)
             sleep(Motor.delay)
 
     def drive(self) -> None:
