@@ -26,6 +26,7 @@ class SensorController:
         self.on_destination_reached = on_destination_reached
 
     def reset(self):
+        """Reset SensorController"""
         self.left_sensor.reset()
         self.middle_sensor.reset()
         self.right_sensor.reset()
@@ -36,6 +37,7 @@ class SensorController:
         self.prev_direction = MotorController.DRIVING_DIRECTION_STRAIGHT
 
     def get_sensor_state(self):
+        """Return current sensor state"""
         return [
             self.left_sensor.get_state(),
             self.middle_sensor.get_state(),
@@ -43,6 +45,7 @@ class SensorController:
         ]
 
     def change_driving_direction(self, direction: str, tight: bool = False):
+        """Change the driving direction when nog locked"""
         if int(time() * 1000) - self.direction_locked > SensorController.LOCK_TIME:
             self.prev_direction = direction
             log.write(direction)
@@ -50,6 +53,7 @@ class SensorController:
             self.direction_locked = 0
 
     def lock_direction(self, lock_time: int = 800):
+        """Lock the direction we're going in for x amount of ms"""
         self.direction_locked = int(time() * 1000)
         print(self.direction_locked)
         SensorController.LOCK_TIME = lock_time

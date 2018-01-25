@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 
 
 class Button:
+    """Button class, setups and destroys buttons"""
     def __init__(self, pin: int, callback: callable(int)):
         self.pin = pin
         self.callback = callback
@@ -15,6 +16,7 @@ class Button:
         GPIO.remove_event_detect(self.pin)
 
     def on_click(self, _: int):
+        """Increase the click count for the destination chooser"""
         self.click_count += 1
 
     def emulate_click(self):
@@ -29,5 +31,6 @@ class Button:
         return self
 
     def reset(self):
+        """Reset the button object"""
         GPIO.remove_event_detect(self.pin)
         self.click_count = 0

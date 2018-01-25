@@ -44,6 +44,7 @@ class Robot:
         self.button = Button(Pins["BUTTON"], self.on_button_click)
 
     def reset(self):
+        """Reset the robot"""
         self.sensor_controller.reset()
         self.motor_controller.reset()
         self.button.reset()
@@ -51,6 +52,7 @@ class Robot:
         self.front_back_lights.reset()
 
     def on_sensor_change(self, direction: str, tight: bool = False) -> None:
+        """Change the driving direction on the motor_controller"""
         self.motor_controller.driving_direction = direction
         self.motor_controller.tight_corner = tight
 
@@ -60,9 +62,11 @@ class Robot:
         self.start_driving()
 
     def set_destination_string(self, destination: str):
+        """Set the destination"""
         self.sensor_controller.destination = destination
 
     def set_destination(self, click_count: int):
+        """Also set the destination... But when using the button"""
         if click_count == 1:
             self.sensor_controller.destination = MotorController.DRIVING_DIRECTION_LEFT
         elif click_count == 2:
@@ -71,11 +75,13 @@ class Robot:
             self.sensor_controller.destination = MotorController.DRIVING_DIRECTION_RIGHT
 
     def start(self, auto_start=False):
+        """Start listening for the button"""
         self.button.listen()
         if auto_start:
             self.button.emulate_click()
 
     def start_driving(self):
+        """Start driving(used with web ui)"""
         log.write("DESTINATION " + self.sensor_controller.destination)
         self.drive_thread = Thread(target=self.motor_controller.drive)
         self.drive_thread.start()

@@ -14,21 +14,26 @@ class LED:
         self.off()
 
     def on(self):
+        """This turns on the LED"""
         self.is_on = True
         GPIO.output(self.pin, GPIO.HIGH)
 
     def off(self):
+        """Take a guess what this does"""
         self.is_on = False
         GPIO.output(self.pin, GPIO.LOW)
 
     def toggle(self):
+        """Toggles the LED on or off"""
         self.is_on = not self.is_on
         GPIO.output(self.pin, GPIO.HIGH if self.is_on else GPIO.LOW)
 
     def blink(self):
+        """Blink the LEDs"""
         while True:
             self.toggle()
             sleep(self.blink_interval)
 
     def reset(self):
+        """Resets the LED"""
         self.off()

@@ -15,6 +15,7 @@ class LEDOrchestrator:
         self.both_off()
 
     def start_alternate_blink(self):
+        """Alternate blinking between two lights"""
         self.blink_on = True
         while self.blink_on:
             if self.led_left.is_on:
@@ -26,16 +27,20 @@ class LEDOrchestrator:
             sleep(LEDOrchestrator.interval)
 
     def stop_blink(self):
+        """Stops the blinken lights"""
         self.blink_on = False
         self.both_off()
 
     def both_on(self):
+        """Turn both lights on"""
         self.led_left.on()
         self.led_right.on()
 
     def both_off(self):
+        """:THINKING_FACE:"""
         self.led_right.off()
         self.led_left.off()
 
     def reset(self):
+        """Reset the lights"""
         self.stop_blink()

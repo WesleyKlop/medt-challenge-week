@@ -1,8 +1,8 @@
-"""
-Dictionary containing all pin numbers
-!!! MOTOR_RIGHT_PIN_X are reversed !!!
-"""
 Pins = {
+    """
+    Dictionary containing all pin numbers
+    !!! MOTOR_RIGHT_PIN_X are reversed !!!
+    """
     "MOTOR_LEFT_PIN_1": 2,
     "MOTOR_LEFT_PIN_2": 3,
     "MOTOR_LEFT_PIN_3": 4,

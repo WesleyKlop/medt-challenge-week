@@ -18,6 +18,7 @@ class MotorController:
         self.tight_corner = False
 
     def reset(self):
+        """Reset the MotorController"""
         self.driving_direction = MotorController.DRIVING_DIRECTION_STRAIGHT
 
     def drive_straight(self, times: int = 1) -> None:
