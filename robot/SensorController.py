@@ -61,13 +61,9 @@ class SensorController:
     def on_sensor_change(self, _):
         """Check all available combinations to see what direction we need to go"""
         sensor_state = self.get_sensor_state()
-        if np.array_equal(sensor_state, [1, 1, 0]):
+        if np.array_equal(sensor_state, [1, 1, 0]) or np.array_equal(sensor_state, [1, 0, 0]):
             self.change_driving_direction(MotorController.DRIVING_DIRECTION_RIGHT)
-        elif np.array_equal(sensor_state, [1, 0, 0]):
-            self.change_driving_direction(MotorController.DRIVING_DIRECTION_RIGHT, True)
-        elif np.array_equal(sensor_state, [0, 0, 1]):
-            self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT, True)
-        elif np.array_equal(sensor_state, [0, 1, 1]):
+        elif np.array_equal(sensor_state, [0, 0, 1]) or np.array_equal(sensor_state, [0, 1, 1]):
             self.change_driving_direction(MotorController.DRIVING_DIRECTION_LEFT)
         elif np.array_equal(sensor_state, [1, 0, 1]):
             if np.array_equal(self.prev_state, [0, 0, 0]):
