@@ -32,6 +32,7 @@ hr {
     height: calc(100vw / 3);
     text-align: center;
     padding: 4px;
+    max-height: 150px;
 }
 
 .destination-list__item.active {
